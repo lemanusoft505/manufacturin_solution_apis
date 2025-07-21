@@ -298,7 +298,7 @@ namespace manufacturin_solution_apis.Controllers
         }
 
 
-        #region Tablas
+        #region ::::::::::::::::::  DATA
         public IActionResult cupones_operacion(DateTime dtFecha, string operno, string linea)
         {
             try
@@ -382,5 +382,16 @@ namespace manufacturin_solution_apis.Controllers
         }
 
         #endregion
+
+        #region ::::::::::::::::::  TELERIK EXPORT TO EXCEL
+        [HttpPost]
+        public ActionResult Excel_Export_Save(string contentType, string base64, string fileName)
+        {
+            var fileContents = Convert.FromBase64String(base64);
+
+            return File(fileContents, contentType, fileName);
+        }
+
+        #endregion ::::::::::::::: 
     }
 }
