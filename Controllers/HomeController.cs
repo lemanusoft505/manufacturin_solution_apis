@@ -1,4 +1,5 @@
 ﻿using manufacturin_solution_apis.Models;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,6 +13,9 @@ namespace manufacturin_solution_apis.Controllers
 {
     public class HomeController : Controller
     {
+
+        
+
         private readonly ILogger<HomeController> _logger;
 
         public HomeController(ILogger<HomeController> logger)
@@ -21,6 +25,29 @@ namespace manufacturin_solution_apis.Controllers
 
         public IActionResult Index()
         {
+            try
+            {
+                cls_seguridad_sesiones tmpSesión = new cls_seguridad_sesiones();
+
+                string cookieSesión = "";
+                Request.Cookies.TryGetValue("cookSesion", out cookieSesión);
+                if (cookieSesión != null)
+                {
+                    tmpSesión = new cls_seguridad_sesiones();
+
+                    if (tmpSesión.Recuperar($"{cookieSesión}"))
+                    {
+                        TempData["myClave"] = tmpSesión.objUsuario.Clave;
+                        TempData["mySesión"] = tmpSesión.sesión;
+                        TempData["myObjUsuario"] = tmpSesión.objUsuario;
+                        TempData["myObjSesión"] = tmpSesión;
+                        globales.objSesión = tmpSesión;
+                        return RedirectToAction("Dashboard", "Reportes", new { txtUsuario = tmpSesión.objUsuario.Usuario, txtClave = tmpSesión.objUsuario.Clave, EsSesionIniciada = "true" });
+                    }
+                }
+            }
+            catch (Exception)
+            {}
             return View();
         }
 
