@@ -39,8 +39,7 @@ namespace manufacturin_solution_apis.Controllers
                     {
                         TempData["myClave"] = tmpSesión.objUsuario.Clave;
                         TempData["mySesión"] = tmpSesión.sesión;
-                        TempData["myObjUsuario"] = tmpSesión.objUsuario;
-                        TempData["myObjSesión"] = tmpSesión;
+                        TempData["myUsuario"] = tmpSesión.objUsuario.Usuario;
                         globales.objSesión = tmpSesión;
                         return RedirectToAction("Dashboard", "Reportes", new { txtUsuario = tmpSesión.objUsuario.Usuario, txtClave = tmpSesión.objUsuario.Clave, EsSesionIniciada = "true" });
                     }

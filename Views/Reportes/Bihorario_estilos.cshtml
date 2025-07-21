@@ -1,0 +1,97 @@
+﻿
+@{
+    Layout = globales.LayPadre;
+
+    string sStyle = "";
+    DateTime dtHoy = System.DateTime.Now;
+    List<cls_INTELSERVER_Ticket_escaneados_BH_x_operaciones_portal_estilos> data_generales_bihorario_estilos = new List<cls_INTELSERVER_Ticket_escaneados_BH_x_operaciones_portal_estilos>();
+    if (TempData["data_generales_bihorario_estilos"] != null) { data_generales_bihorario_estilos = TempData["data_generales_bihorario_estilos"] as List<cls_INTELSERVER_Ticket_escaneados_BH_x_operaciones_portal_estilos>; }
+    if (ViewBag.dtFecha != null) { dtHoy = ViewBag.dtFecha; }
+    if (ViewBag.sStyle != null) { sStyle = ViewBag.sStyle; }
+
+    string sFecha = string.Format("{0:yyyy-MM-dd}", dtHoy);
+
+
+
+}
+
+<style type="text/css">
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
+    #wrapper_full {
+        min-height: 100%;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 40;
+        z-index: 10;
+    }
+</style>
+<div id="wrapper_full">
+    <aside class="main-sidebar">
+        @using (Html.BeginForm("Bihorario_estilos", "Reportes", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken();
+            <div class="input-group mb-3">
+                <input name="dtFecha" id="dtFecha" class="form-control input_user" required type="date" value="@sFecha">
+                <input name="sStyle" id="sStyle" type="hidden" value="@sStyle" />
+                <button type="submit" name="button" class="btn login_btn">Actualizar</button>
+            </div>
+        }
+    <div class="row">
+        @(Html.Kendo().Grid<cls_INTELSERVER_Ticket_escaneados_BH_x_operaciones_portal_estilos>(data_generales_bihorario_estilos)
+    .Name("grdKPI")
+    .Columns(columns => {
+        columns.Bound(p => p.style)
+        .Title("STYLE ID").ClientTemplate("<a class=\"btn btn-info btn-xs k-grid-detalle\" href='" + Url.Action("Bihorario_estilos", "Reportes", new { dtFecha = sFecha, sStyle = "#=style#" }) + "'>#=style#<i class='fa fa-arrow-right'></i></a>");
+
+    })
+    .ToolBar(toolbar => { toolbar.Excel(); })
+    .Excel(excel => excel.FileName(string.Format("ESTILOS BIHORARIO {0:dd-MMM-yyyy}.xlsx", ViewBag.dtFecha))
+    .Filterable(true)
+    .AllPages(true)
+    .ProxyURL(Url.Action("Excel_Export_Save", "Reportes")))
+    .Editable(editable => editable.Mode(GridEditMode.InLine))
+    .Reorderable(r => r.Columns(true))
+    .Resizable(r => r.Columns(true))
+    .ColumnMenu()
+    .Sortable()
+    .Scrollable(s => s.Enabled(true))
+    .Filterable()
+    .HtmlAttributes(new { style = "width:auto;height:500px;" })
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model => { model.Id(p => p.style); })
+        )
+    .Resizable(resize => resize.Columns(true))
+    )
+    </div>
+
+    </aside>
+    <div class="content-wrapper">
+        <section class="content">
+            <div class="row" title="PARAMETROS">
+                <div class="col-lg-3 col-xs-6">
+                   
+                </div>
+            </div>
+            <div class="row" title="INDICADORES ">
+                @{
+                    if (sStyle.Trim().Length > 0)
+                    {
+                        await Html.RenderPartialAsync("Bihorario_operaciones_estilo_seleccionado");
+                    }
+                }
+            </div>
+        </section>
+    </div>
+
+</div>
+
+
+
+

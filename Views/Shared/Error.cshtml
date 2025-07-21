@@ -1,6 +1,10 @@
-﻿@model ErrorViewModel
-@{
+﻿@{
     ViewData["Title"] = "Error";
+    string strError = ViewBag.strError;
+    if(strError == null)
+    {
+        strError = "No error information available.";
+    }
 }
 
 <h1 class="text-danger">Error.</h1>
@@ -9,7 +13,8 @@
 @if (Model.ShowRequestId)
 {
     <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+        <strong>Request ID:</strong> <code>@strError</code>
+        
     </p>
 }
 

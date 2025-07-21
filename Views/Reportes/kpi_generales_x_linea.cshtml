@@ -1,0 +1,254 @@
+﻿
+@{
+    string Seleccion_Bihorario = "";
+    string Valor_Seleccion_Bihorario = "";
+    DateTime dtHoy = System.DateTime.Now;
+
+    if (ViewBag.dtFecha != null) { dtHoy = ViewBag.dtFecha; }
+    if (ViewBag.Seleccion_Bihorario != null) { Seleccion_Bihorario = ViewBag.Seleccion_Bihorario; }
+    if (ViewBag.Valor_Seleccion_Bihorario != null) { Valor_Seleccion_Bihorario = ViewBag.Valor_Seleccion_Bihorario; }
+
+    List<tbl_kpi_tickets_escaneados_x_dia_general> dataKPI = null;
+    List<tbl_kpi_tickets_escaneados_x_dia_Operaciones> dataKPI_Operaciones = null;
+
+    if (TempData["kpi_generales_bihorario"] != null)
+    {
+        dataKPI = TempData["kpi_generales_bihorario"] as List<tbl_kpi_tickets_escaneados_x_dia_general>;
+    }
+
+    if (TempData["kpi_operaciones_bihorario"] != null) {
+        dataKPI_Operaciones = TempData["kpi_operaciones_bihorario"] as List<tbl_kpi_tickets_escaneados_x_dia_Operaciones>;
+    }
+}
+<div class="row">
+    <div class="jumbotron"><h4 class="display-4">@Valor_Seleccion_Bihorario</h4></div>
+</div>
+<div class="row" title="KPI">
+    @(Html.Kendo().TabStrip()
+          .Name("tabstrip")
+          .Animation(animation =>
+              animation.Open(effect =>
+                  effect.Fade(FadeDirection.In)))
+          .Items(tabstrip =>
+          {
+              tabstrip.Add().Text("Operarios")
+                  .Selected(true)
+                  .Content(@<text>
+                    <div class="row">
+                        @foreach (var x in dataKPI)
+                        {
+                            string sEficiencia = string.Format("{0:N2}%", x.EFICIENCIA);
+                            string sBackColor = "bg-red-gradient";
+                            if (x.EFICIENCIA > 87 & x.EFICIENCIA < 100)
+                            {
+                                sBackColor = "bg-yellow-gradient";
+                            }
+                            else if (x.EFICIENCIA >= 100 & x.EFICIENCIA < 110)
+                            {
+                                sBackColor = "bg-green-gradient";
+                            }
+                            else if (x.EFICIENCIA >= 110)
+                            {
+                                sBackColor = "bg-light-blue-gradient";
+                            }
+                            <div class="col-lg-3 col-xs-6">
+                                <div class="small-box small-box @sBackColor">
+                                    <div class="inner">
+                                        <h3 class="align-content-lg-end"> <span class="text-center">@sEficiencia</span></h3>
+                                        <p>@x.EMPNO</p>
+                                        <p>@x.OPERARIO</p>
+                                        <p>@x.UBICACION</p>
+                                        <p>@string.Format("{0:N2} minutos {1:N0} cupones", x.TOTAL_SAM, x.TICKETS)</p>
+                                    </div>
+                                    <div class="icon">
+                                        <a href="@Url.Action("cupones_operario","Reportes", new { dtFecha=dtHoy, empno=x.EMPNO, linea= Valor_Seleccion_Bihorario})" target="_blank"><i class="ion ion-grid"></i></a>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        }
+                    </div>
+                    <div class="row" title="VALORES">
+                        @(Html.Kendo().Grid<tbl_kpi_tickets_escaneados_x_dia_general>(dataKPI)
+                            .Name("grdKPI")
+                            .Columns(columns => {
+                                columns.Bound(p => p.EMPNO).Title("ID EMPLEADO");
+                                columns.Bound(p => p.OPERARIO).Title("EMPLEADO");
+                                columns.Bound(p => p.UBICACION).Title("UBICACION");
+                                columns.Bound(p => p.TICKETS).Title("TICKETS").ClientFooterTemplate("#=kendo.format('{0:n0}', sum)#").Format("{0:n0}");
+                                columns.Bound(p => p.TOTAL_SAM).Title("TOTAL SAM").ClientFooterTemplate("#=kendo.format('{0:n2}', sum)#").Format("{0:n2}");
+                                columns.Bound(p => p.PORC_SAM).Title("% SAM").ClientFooterTemplate("#=kendo.format('{0:n2}', sum)#").Format("{0:n2}");
+                                columns.Bound(p => p.SAM_OPERARIOS).Title("SAM OPERARIOS").ClientFooterTemplate("#=kendo.format('{0:n2}', sum)#").Format("{0:n2}");
+                                columns.Bound(p => p.EFICIENCIA).Title("EFICIENCIA").ClientFooterTemplate("#=kendo.format('{0:n2}', average)#").Format("{0:n2}"); })
+                            .ToolBar(toolbar => { toolbar.Excel(); })
+                            .Excel(excel => excel .FileName(string.Format("INDICADORES BIHORARIO {0:dd-MMM-yyyy}.xlsx", ViewBag.dtFecha))
+                            .Filterable(true)
+                            .AllPages(true)
+                            .ProxyURL(Url.Action("Excel_Export_Save", "Reportes")) )
+                            .Editable(editable => editable .Mode(GridEditMode.InLine) )
+                            .Reorderable(r => r.Columns(true))
+                            .Resizable(r => r.Columns(true))
+                            .ColumnMenu()
+                            .Sortable()
+                            .Scrollable(s => s.Enabled(true))
+                            .Filterable()
+                            .HtmlAttributes(new { style = "width:auto;height:600px;" })
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                //.Read(read => read.Action("tbl_kpi_tickets_escaneados_x_dia_general_generar", "Reportes"))
+                                .Model(model => { model.Id(p => p.EMPNO); })
+                                .Aggregates(aggregates =>
+                                {
+                                    aggregates.Add(p => p.EMPNO).Count();
+                                    aggregates.Add(p => p.EFICIENCIA).Average();
+                                    aggregates.Add(p => p.PORC_SAM).Sum();
+                                    aggregates.Add(p => p.SAM_OPERARIOS).Sum();
+                                    aggregates.Add(p => p.TICKETS).Sum();
+                                    aggregates.Add(p => p.TOTAL_SAM).Sum();
+                                })
+                            )
+                            .Resizable(resize => resize.Columns(true))
+                        )
+                    </div>
+
+                  </text>);
+
+              tabstrip.Add().Text("Operaciones")
+                  .Content(@<text>
+                    <div class="row">
+                        @foreach (var x in dataKPI_Operaciones)
+                        {
+                            string sEficiencia = string.Format("{0:N2}%", x.EFICIENCIA);
+                            string sBackColor = "bg-red-gradient";
+                            if (x.EFICIENCIA > 87 & x.EFICIENCIA < 100)
+                            {
+                                sBackColor = "bg-yellow-gradient";
+                            }
+                            else if (x.EFICIENCIA >= 100 & x.EFICIENCIA < 110)
+                            {
+                                sBackColor = "bg-green-gradient";
+                            }
+                            else if (x.EFICIENCIA >= 110)
+                            {
+                                sBackColor = "bg-light-blue-gradient";
+                            }
+                            <div class="col-lg-3 col-xs-6">
+                                <div class="small-box small-box @sBackColor">
+                                    <div class="inner">
+                                        <h3 class="align-content-lg-end"> <span class="text-center">@sEficiencia</span></h3>
+                                        <p><b>@x.OPERNO</b></p>
+                                        <p><b>@x.OPERDESCR</b></p>
+                                        <p>@x.UBICACION</p>
+                                        <p>@string.Format("{0:N2} minutos {1:N0} Piezas", x.TOTAL_SAM, x.CANTIDAD)</p>
+                                    </div>
+                                    <div class="icon">
+                                        <a href="@Url.Action("cupones_operacion","Reportes", new { dtFecha=dtHoy, operno=x.OPERNO, linea= Valor_Seleccion_Bihorario})" target="_blank"><i class="ion ion-grid"></i></a>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        }
+                    </div>
+                    <div class="row" title="VALORES">
+                        @(Html.Kendo().Grid<tbl_kpi_tickets_escaneados_x_dia_Operaciones>(dataKPI_Operaciones)
+                            .Name("grdKPI_Operaciones")
+                            .Columns(columns => {
+                                columns.Bound(p => p.OPERNO).Title("ID OPERACION");
+                                columns.Bound(p => p.OPERDESCR).Title("NOMBRE OPERACION");
+                                columns.Bound(p => p.UBICACION).Title("UBICACION");
+                                columns.Bound(p => p.TICKETS).Title("TICKETS").ClientFooterTemplate("#=kendo.format('{0:n0}', sum)#").Format("{0:n0}");
+                                columns.Bound(p => p.CANTIDAD).Title("CANTIDAD").ClientFooterTemplate("#=kendo.format('{0:n0}', sum)#").Format("{0:n0}");
+                                columns.Bound(p => p.TOTAL_SAM).Title("TOTAL SAM").ClientFooterTemplate("#=kendo.format('{0:n2}', sum)#").Format("{0:n2}");
+                                columns.Bound(p => p.PORC_SAM).Title("% SAM").ClientFooterTemplate("#=kendo.format('{0:n2}', sum)#").Format("{0:n2}");
+                                columns.Bound(p => p.SAM_OPERARIOS).Title("SAM OPERARIOS").ClientFooterTemplate("#=kendo.format('{0:n2}', sum)#").Format("{0:n2}");
+                                columns.Bound(p => p.EFICIENCIA).Title("EFICIENCIA").ClientFooterTemplate("#=kendo.format('{0:n2}', average)#").Format("{0:n2}"); })
+                            .ToolBar(toolbar => { toolbar.Excel(); })
+                            .Excel(excel => excel .FileName(string.Format("INDICADORES BIHORARIO {0:dd-MMM-yyyy}.xlsx", ViewBag.dtFecha))
+                            .Filterable(true)
+                            .AllPages(true)
+                            .ProxyURL(Url.Action("Excel_Export_Save", "Reportes")) )
+                            .Editable(editable => editable .Mode(GridEditMode.InLine) )
+                            .Reorderable(r => r.Columns(true))
+                            .Resizable(r => r.Columns(true))
+                            .ColumnMenu()
+                            .Sortable()
+                            .Scrollable(s => s.Enabled(true))
+                            .Filterable()
+                            .HtmlAttributes(new { style = "width:auto;height:600px;" })
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                //.Read(read => read.Action("tbl_kpi_tickets_escaneados_x_dia_general_generar", "Reportes"))
+                                .Model(model => { model.Id(p => p.OPERNO); })
+                                .Aggregates(aggregates =>
+                                {
+                                    aggregates.Add(p => p.OPERNO).Count();
+                                    aggregates.Add(p => p.EFICIENCIA).Average();
+                                    aggregates.Add(p => p.PORC_SAM).Sum();
+                                    aggregates.Add(p => p.SAM_OPERARIOS).Sum();
+                                    aggregates.Add(p => p.TICKETS).Sum();
+                                    aggregates.Add(p => p.CANTIDAD).Sum();
+                                    aggregates.Add(p => p.TOTAL_SAM).Sum();
+                                })
+                            )
+                            .Resizable(resize => resize.Columns(true))
+                        )
+                    </div>
+                  </text>);
+          })
+    )
+
+
+</div>
+
+
+
+<style>
+
+    .template-container {
+        padding: 10px 10px 0px 10px;
+    }
+
+        .template-container img {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            margin-left: -10px;
+        }
+
+    .column-status {
+        padding-top: 5px;
+    }
+
+    .column-text {
+        padding-left: 10px;
+    }
+
+    .column-template-container,
+    .template-header {
+        width: 100%;
+        display: flex;
+    }
+
+    .column-buttons {
+        margin-left: auto;
+        margin-right: 0;
+        padding-right: 5px;
+    }
+
+    .template-menu {
+        margin-left: auto;
+        margin-right: 0;
+    }
+
+    .template-title {
+        color: red;
+        word-wrap: break-word;
+    }
+
+    .k-taskboard-drag-hint {
+        font: 400 14px Arial,Helvetica,sans-serif;
+    }
+</style>

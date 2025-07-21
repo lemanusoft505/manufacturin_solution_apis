@@ -1,0 +1,105 @@
+﻿@{
+    Layout = globales.LayPadre;
+    IEnumerable<manufacturin_solution_apis.Models.cls_items_treeview_bihorario> data;
+    string Seleccion_Bihorario = "";
+    string Valor_Seleccion_Bihorario = "";
+    DateTime dtHoy = System.DateTime.Now;
+
+    if (ViewBag.data != null) { data = ViewBag.data; }
+    if (ViewBag.dtFecha != null) { dtHoy = ViewBag.dtFecha; }
+    if (ViewBag.Seleccion_Bihorario != null) { Seleccion_Bihorario = ViewBag.Seleccion_Bihorario; }
+    if (ViewBag.Valor_Seleccion_Bihorario != null) { Valor_Seleccion_Bihorario = ViewBag.Valor_Seleccion_Bihorario; }
+
+    string sFecha = string.Format("{0:yyyy-MM-dd}", dtHoy);
+}
+<aside class="main-sidebar">
+
+    @(Html.Kendo().TreeView()
+        .Name("treeview")
+        .DragAndDrop(false)
+        .ExpandAll(false)
+        .DataTextField("Name")
+        .DataImageUrlField("ItemImage")
+        .Events(e => e.Select("AlSeleccionar_Trv"))
+        .DataSource(dataSource => dataSource
+        .Read(read => read
+        .Action("Elementos_TreeView_Bihorario", "Reportes")
+        )
+        )
+        )
+</aside>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="row" title="PARAMETROS">
+            <div class="col-lg-3 col-xs-6">
+                @using (Html.BeginForm("Bihorario", "Reportes", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    ;
+                    <div class="input-group mb-3">
+                        <div class="input-group-append">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                        </div>
+                        <input name="dtFecha" id="dtFecha" class="form-control input_user" required type="date" value="@sFecha">
+                        <input name="Seleccion" id="Seleccion" value="@Seleccion_Bihorario" type="hidden">
+                        <input name="Valor" id="Valor" value="@Valor_Seleccion_Bihorario" type="hidden">
+                        <button type="submit" name="button" class="btn login_btn">Actualizar</button>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="row" title="INDICADORES ">
+            @{
+                if (Seleccion_Bihorario == "" && Valor_Seleccion_Bihorario == "")
+                {
+                    await Html.RenderPartialAsync("kpi_generales");
+                }
+                else if (Seleccion_Bihorario == "EMPRESA")
+                {
+                    await Html.RenderPartialAsync("kpi_generales");
+                }
+                else if (Seleccion_Bihorario == "PLANTA")
+                {
+                    await Html.RenderPartialAsync("kpi_generales_x_planta");
+                }
+                else if (Seleccion_Bihorario == "LINEA")
+                {
+                    await Html.RenderPartialAsync("kpi_generales_x_linea");
+                }
+                else
+                {
+                    await Html.RenderPartialAsync("kpi_generales");
+                }
+            }
+        </div>
+    </section>
+</div>
+
+<script>
+    var treeview;
+
+    function AlSeleccionar_Trv(e) {
+        var eNode = e.node;
+        var s_innerHTML = eNode.innerHTML;
+        var s_Seleccion = "";
+        var s_Valor = this.text(e.node);
+
+
+        console.log("Selecting: " + this.text(e.node));
+        if (s_innerHTML.includes('star_full.png'))
+            s_Seleccion="EMPRESA";
+        if (s_innerHTML.includes('home.png'))
+            s_Seleccion = "PLANTA";
+        if (s_innerHTML.includes('female_male_users.png'))
+            s_Seleccion = "LINEA";
+
+        document.getElementById("Seleccion").value = s_Seleccion;
+        document.getElementById("Valor").value = s_Valor;
+    }
+
+
+    $(document).ready(function () {
+        treeview = $("#treeview").data("kendoTreeView");
+    });
+</script>

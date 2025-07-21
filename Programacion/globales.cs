@@ -50,7 +50,7 @@ namespace manufacturin_solution_apis
         
         public static String urlBase = string.Empty;
         public static String dirBase = string.Empty;
-        public static String LayPadre = "~/Views/Shared/_Layout.cshtml";
+        public static String LayPadre = "_Layout";//"~/Views/Shared/_Layout.cshtml";
         public static string RutaAdjuntos = "\\Content\\Uploads\\";
         public static string RootPath = string.Empty;
         public static List<string> ListaFormatoImagen = new List<string> { ".BMP", ".PNG", ".GIF", ".JPG", ".JPEG" };

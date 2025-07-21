@@ -1,0 +1,10 @@
+﻿@model int
+
+@(Html.Kendo().DropDownListFor(m => m)
+            .DataValueField("idcliente")
+            .DataTextField("cliente")
+            .HtmlAttributes(new { data_bind = "value: idcliente" })
+            .Template(@"<div class='dropdown-country-wrap'><span>#: data.cliente #</span></div>")
+            .BindTo((System.Collections.IEnumerable)ViewData["clientes"])
+            .AutoWidth(true)
+)

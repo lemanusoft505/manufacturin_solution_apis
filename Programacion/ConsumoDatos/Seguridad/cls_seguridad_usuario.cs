@@ -79,7 +79,7 @@ namespace manufacturin_solution_apis
                     "@Activo = '{5}', " +
                     "@Es_Debe_Cambiar_Clave = '{6}', " +
                     "@Email = '{7}', " +
-                    "@Teléfonos = '{8}'",
+                    "@Teléfonos = '{8}';",
                     nUsuario,
                     globales.comillas(sUsuario),
                     globales.comillas(sNombre),

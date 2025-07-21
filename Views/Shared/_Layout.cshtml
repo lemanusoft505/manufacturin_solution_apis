@@ -1,51 +1,115 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@{
+    Layout = null;
+    cls_seguridad_sesiones tmpSesión = new cls_seguridad_sesiones();
+    if (TempData["myObjSesión"] != null)
+    {
+        tmpSesión = TempData["myObjSesión"] as cls_seguridad_sesiones;
+    }
+    int numaccion = 1;
+
+}
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - manufacturin_solution_apis</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>@globales.NombreComercialEmpresa</title>
+    	<link href="@Url.Content("~/Content/kendo/2023.1.117/kendo.default-ocean-blue.min.css")" rel="stylesheet" type="text/css" />
+	<link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" type="text/css" />
+	<link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="../../Content/fa/font-awesome.min.css">
+    <link rel="stylesheet" href="../../Content/ionic/ionicons.min.css">
+    <link rel="stylesheet" href="../../Content/AdminLTE.css">
 
-    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
-    @*Core Content Start*@
+    	<script src="@Url.Content("~/Scripts/kendo/2023.1.117/jquery.min.js")"></script>
+	<script src="@Url.Content("~/Scripts/kendo/2023.1.117/angular.min.js")"></script>
+	<script src="@Url.Content("~/Scripts/kendo/2023.1.117/jszip.min.js")"></script>
+	<script src="@Url.Content("~/Scripts/kendo/2023.1.117/kendo.all.min.js")"></script>
+	<script src="@Url.Content("~/Scripts/kendo/2023.1.117/kendo.aspnetmvc.min.js")"></script>
+	<script src="@Url.Content("~/Scripts/bootstrap.min.js")"></script>
+<script src="../../scripts/axios.min.js"></script>
 
-    	<link href="https://cdn.kendostatic.com/2023.1.117/styles/kendo.common.min.css" rel="stylesheet" type="text/css" />
-	<link href="https://cdn.kendostatic.com/2023.1.117/styles/kendo.default.min.css" rel="stylesheet" type="text/css" />
-	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-	<script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
-	<script src="https://cdn.kendostatic.com/2023.1.117/js/jquery.min.js"></script>
-	<script src="https://cdn.kendostatic.com/2023.1.117/js/jszip.min.js"></script>
-	<script src="https://cdn.kendostatic.com/2023.1.117/js/kendo.all.min.js"></script>
-	<script src="https://cdn.kendostatic.com/2023.1.117/js/kendo.aspnetmvc.min.js"></script>
-@*Core Content End*@
+
+
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+
+    <style>
+       
+        #myMenu h2 {
+            font-size: 1em;
+            text-transform: uppercase;
+            padding: 5px 10px;
+        }
+
+        #template img {
+            margin: 5px 20px 0 0;
+            float: left;
+        }
+
+        #template {
+            width: 380px;
+        }
+
+            #template ol {
+                float: left;
+                margin: 0 0 0 30px;
+                padding: 10px 10px 0 10px;
+            }
+
+            #template:after {
+                content: ".";
+                display: block;
+                height: 0;
+                clear: both;
+                visibility: hidden;
+            }
+
+            #template .k-button {
+                float: left;
+                clear: left;
+                margin: 5px 0 5px 12px;
+            }
+    </style>
+    <header class="main-header">
+        @(Html.Kendo().Menu()
+          .Name("myMenu")
+          .Orientation(MenuOrientation.Horizontal)
+          .Items(items =>
+          {
+              items.Add().Text("Resumen").Action("Home", "Reportes").ImageUrl("~/Content/media/24x24/home.png");
+              items.Add().Text("Bihorario")
+                .ImageUrl("~/Content/media/24x24/clock.png")
+                .Items(subMenu =>
+                {
+                    subMenu.Add().Text("General").Action("Bihorario", "Reportes", new { dtFecha = System.DateTime.Now, Seleccion = "", Valor = "" });
+                    subMenu.Add().Text("Estilos").Action("Bihorario_estilos", "Reportes", new { dtFecha = System.DateTime.Now });
+                });
+              items.Add().Text("Ajustes").Items(subMenu=> {
+                  subMenu.Add().Text("Plantas");
+                  subMenu.Add().Text("Líneas");
+              });
+              items.Add().Text("Salir").Action("Salir", "Seguridad").ImageUrl("~/Content/media/24x24/delete.png");
+          })
+        )
+    </header>
+
+    <div class="wrapper">
+        
+        <div class="content">
+            @RenderBody()
+        </div>
 
     
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">manufacturin_solution_apis</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-            </div>
-        </nav>
-    </header>
-    <div>
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+    <footer class="main-footer">
+        <div class="pull-right hidden-xs">
+            <b>Version</b> @globales.versionApp
+        </div>
+        <strong>Copyright &copy; 2022 <a href="http://www.rocedes.com.ni">ROCEDES, S.A.</a>.</strong> All rights reserved.
+    </footer>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; @DateTime.Now.Year - manufacturin_solution_apis
-        </div>
-    </footer>
-    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @RenderSection("Scripts", required: false)
+
 </body>
 </html>

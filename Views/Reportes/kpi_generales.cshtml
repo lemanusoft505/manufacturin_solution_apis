@@ -1,0 +1,83 @@
+﻿@{ 
+    string Seleccion_Bihorario = "";
+    string Valor_Seleccion_Bihorario = "";
+
+    if (ViewBag.Seleccion_Bihorario != null) { Seleccion_Bihorario = ViewBag.Seleccion_Bihorario; }
+    if (ViewBag.Valor_Seleccion_Bihorario != null) { Valor_Seleccion_Bihorario = ViewBag.Valor_Seleccion_Bihorario; }
+
+    List<tbl_kpi_tickets_escaneados_x_dia_general> dataKPI = null;
+    if (TempData["kpi_generales_bihorario"] != null) {
+        dataKPI = TempData["kpi_generales_bihorario"] as List<tbl_kpi_tickets_escaneados_x_dia_general>;
+    }
+}
+<div class="row" title="KPI">
+    @(Html.Kendo().Chart<tbl_kpi_tickets_escaneados_x_dia_general>(dataKPI)
+            .Name("chartKPI_BIHORARIO")
+            .Title(string.Format("Indicadores Bihorario {0}",  Valor_Seleccion_Bihorario))
+            .Legend(legend => legend
+                .Position(ChartLegendPosition.Top)
+            )
+            //.DataSource(ds => ds.Read(read => read.Action("_SpainElectricityProduction", "Line_Charts")))
+            .Series(series => {
+                series.Line(model => model.EFICIENCIA).Name("Eficiencia").CategoryField("PLANTA");
+                series.Line(model => model.PORC_SAM).Name("SAM Asignado").CategoryField("PLANTA");
+                series.Line(model => model.PORC_OPERARIOS).Name("Operarios").CategoryField("PLANTA");
+            })
+            .SeriesColors("orange","green","blue")
+        .CategoryAxis(axis => axis
+            .Labels(labels => labels.Rotation(-90))
+            .Crosshair(c => c.Visible(true))
+        )
+        .ValueAxis(axis => axis.Numeric()
+            .Labels(labels => labels.Format("{0:N2}"))
+        )
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Shared(true)
+            .Format("{0:N0}")
+        )
+    )
+</div>
+
+
+<div class="row" title="VALORES">
+    @(Html.Kendo().Grid<tbl_kpi_tickets_escaneados_x_dia_general>(dataKPI) 
+        .Name("grdKPI") 
+        .Columns(columns => { 
+            columns.Bound(p => p.PLANTA).Title("PLANTA"); 
+            columns.Bound(p => p.TICKETS).Title("TICKETS").ClientFooterTemplate("#=kendo.format('{0:n0}', sum)#").Format("{0:n0}"); 
+            columns.Bound(p => p.TOTAL_SAM).Title("TOTAL SAM").ClientFooterTemplate("#=kendo.format('{0:n2}', sum)#").Format("{0:n2}"); 
+            columns.Bound(p => p.PORC_SAM).Title("% SAM").ClientFooterTemplate("#=kendo.format('{0:n2}', sum)#").Format("{0:n2}"); 
+            columns.Bound(p => p.OPERARIOS).Title("OPERARIOS").ClientFooterTemplate("#=kendo.format('{0:n0}', sum)#").Format("{0:n0}"); 
+            columns.Bound(p => p.PORC_OPERARIOS).Title("% OPERARIOS").ClientFooterTemplate("#=kendo.format('{0:n2}', sum)#").Format("{0:n2}"); 
+            columns.Bound(p => p.SAM_OPERARIOS).Title("SAM OPERARIOS").ClientFooterTemplate("#=kendo.format('{0:n2}', sum)#").Format("{0:n2}"); 
+            columns.Bound(p => p.EFICIENCIA).Title("EFICIENCIA").ClientFooterTemplate("#=kendo.format('{0:n2}', average)#").Format("{0:n2}"); }) 
+        .ToolBar(toolbar => { toolbar.Excel(); }) 
+        .Excel(excel => excel .FileName(string.Format("INDICADORES BIHORARIO {0:dd-MMM-yyyy}.xlsx", ViewBag.dtFecha)) 
+        .Filterable(true) 
+        .AllPages(true) 
+        .ProxyURL(Url.Action("Excel_Export_Save", "Reportes")) ) 
+        .Editable(editable => editable .Mode(GridEditMode.InLine) ) 
+        .Reorderable(r => r.Columns(true)) 
+        .Resizable(r => r.Columns(true)) 
+        .ColumnMenu() 
+        .Sortable() 
+        .Scrollable(s => s.Enabled(true)) 
+        .Filterable() 
+        .HtmlAttributes(new { style = "width:auto;height:300px;" }) 
+        .DataSource(dataSource => dataSource 
+            .Ajax() 
+            //.Read(read => read.Action("tbl_kpi_tickets_escaneados_x_dia_general_generar", "Reportes")) 
+            .Model(model => { model.Id(p => p.PLANTA); }) 
+            .Aggregates(aggregates => { 
+                aggregates.Add(p => p.EFICIENCIA).Average(); 
+                aggregates.Add(p => p.OPERARIOS).Sum(); 
+                aggregates.Add(p => p.PORC_OPERARIOS).Sum(); 
+                aggregates.Add(p => p.PORC_SAM).Sum(); 
+                aggregates.Add(p => p.SAM_OPERARIOS).Sum(); 
+                aggregates.Add(p => p.TICKETS).Sum(); 
+                aggregates.Add(p => p.TOTAL_SAM).Sum();  }) ) 
+        .Resizable(resize => resize.Columns(true)) 
+    )
+</div>
+    

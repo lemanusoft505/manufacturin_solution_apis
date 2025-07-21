@@ -1,0 +1,177 @@
+﻿@{
+
+    string sStyle = "";
+    DateTime dtHoy = System.DateTime.Now;
+    cls_INTELSERVER_Ticket_escaneados_BH_x_operaciones_portal_estilos data_estilo_seleccionado = new cls_INTELSERVER_Ticket_escaneados_BH_x_operaciones_portal_estilos();
+    List<cls_INTELSERVER_Ticket_escaneados_BH_x_operaciones_portal_estilos_operaciones> Operaciones_Estilo_Seleccionado = new List<cls_INTELSERVER_Ticket_escaneados_BH_x_operaciones_portal_estilos_operaciones>();
+    List<cls_INTELSERVER_Ticket_escaneados_BH_x_operaciones_portal_estilos_prod> data_generales_bihorario_estilos_prod = new List<cls_INTELSERVER_Ticket_escaneados_BH_x_operaciones_portal_estilos_prod>();
+
+    if (ViewBag.sStyle != null) { sStyle = ViewBag.sStyle; }
+
+    if (ViewBag.dtFecha != null) { dtHoy = ViewBag.dtFecha; }
+
+
+    if (TempData["data_operaciones_seleccionado"] != null)
+    {
+        Operaciones_Estilo_Seleccionado = TempData["data_operaciones_seleccionado"] as List<cls_INTELSERVER_Ticket_escaneados_BH_x_operaciones_portal_estilos_operaciones>;
+    }
+
+    if (TempData["data_estilo_seleccionado"] != null)
+    {
+        data_estilo_seleccionado = TempData["data_estilo_seleccionado"] as cls_INTELSERVER_Ticket_escaneados_BH_x_operaciones_portal_estilos;
+    }
+
+    if (TempData["data_generales_bihorario_estilos_prod"] != null)
+    {
+        data_generales_bihorario_estilos_prod = TempData["data_generales_bihorario_estilos_prod"] as List<cls_INTELSERVER_Ticket_escaneados_BH_x_operaciones_portal_estilos_prod>;
+    }
+}
+
+@if (sStyle.Trim().Length > 0)
+{
+    <div class="row">
+        <h1 class="display-5">@sStyle</h1>
+    </div>
+    <table style="width:600px">
+        <thead>
+            <tr>
+                <th class="TituloColumna"></th>
+                <th class="ContenidoColumna"></th>
+                <th class="TituloColumna"></th>
+                <th class=".DescripcionesColumna"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="TituloColumna">Bulletin:</td>
+                <td class="ContenidoColumna">@data_estilo_seleccionado.BULLETIN</td>
+                <td class="TituloColumna">Descripción:</td>
+                <td class=".DescripcionesColumna">@data_estilo_seleccionado.descr</td>
+            </tr>
+            <tr>
+                <td class="TituloColumna">Cliente:</td>
+                <td class="ContenidoColumna">@data_estilo_seleccionado.CLIENTE</td>
+                <td class="TituloColumna">Tickets:</td>
+                <td class=".DescripcionesColumna">@string.Format("{0:N0}", data_estilo_seleccionado.tickets)</td>
+            </tr>
+            <tr>
+                <td class="TituloColumna">SAM:</td>
+                <td class="ContenidoColumna">@string.Format("{0:N4}", data_estilo_seleccionado.SAM)</td>
+                <td class="TituloColumna">Rate:</td>
+                <td class=".DescripcionesColumna">@string.Format("{0:C2}", data_estilo_seleccionado.RATE)</td>
+            </tr>
+            <tr>
+                <td class="TituloColumna">Fecha:</td>
+                <td class="ContenidoColumna">@string.Format("{0:dd MMM yyyy}", dtHoy)</td>
+                <td class="TituloColumna">Cantidad WIP:</td>
+                <td class=".DescripcionesColumna">@string.Format("{0:N0}", data_estilo_seleccionado.CANTIDAD_WIP)</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="row" title="tabbedControl">
+        @(Html.Kendo().TabStrip()
+            .Name("tabstrip")
+            .Animation(animation =>
+            animation.Open(effect =>
+            effect.Fade(FadeDirection.In)))
+            .Items(tabstrip =>
+            {
+                tabstrip.Add().Text("Cortes")
+            .Selected(true)
+            .Content(@<text>
+                          <div class="row" title="VALORES">
+                @(Html.Kendo().Grid<cls_INTELSERVER_Ticket_escaneados_BH_x_operaciones_portal_estilos_prod>(data_generales_bihorario_estilos_prod)
+                            .Name("grdEstilos_Prods")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.prodno).Title("CORTE");
+                                columns.Bound(p => p.descr).Title("DESCRIPCION CORTE");
+                                columns.Bound(p => p.Employees).Title("OPERARIOS");
+                            })
+                            .ToolBar(toolbar => { toolbar.Excel(); })
+                            .Excel(excel => excel.FileName(string.Format("Cortes Estilo {0}.xlsx", sStyle))
+                            .Filterable(true)
+                            .AllPages(true)
+                            .ProxyURL(Url.Action("Excel_Export_Save", "Reportes")))
+                            .Editable(editable => editable.Mode(GridEditMode.InLine))
+                            .Reorderable(r => r.Columns(true))
+                            .Resizable(r => r.Columns(true))
+                            .ColumnMenu()
+                            .Sortable()
+                            .Scrollable(s => s.Enabled(true))
+                            .Filterable()
+                            .HtmlAttributes(new { style = "width:auto;height:600px;" })
+                            .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .Model(model => { model.Id(p => p.prodno); })
+                            )
+                            .Resizable(resize => resize.Columns(true))
+                            )
+            </div>
+        </text>);
+
+            tabstrip.Add().Text("Operaciones")
+            .Content(@<text>
+                          <div class="row" title="VALORES">
+                @(Html.Kendo().Grid<cls_INTELSERVER_Ticket_escaneados_BH_x_operaciones_portal_estilos_operaciones>(Operaciones_Estilo_Seleccionado)
+                            .Name("grdEstilos_Operaciones")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.orden).Title("ORDEN");
+                                columns.Bound(p => p.operno).Title("ID OPERACION");
+                                columns.Bound(p => p.descr).Title("DESCRIPCION OPERACION");
+                                columns.Bound(p => p.quantity).Title("CANTIDAD").Format("{0:n0}");
+                                columns.Bound(p => p.Employees).Title("OPERARIOS").Format("{0:n0}");
+                                columns.Bound(p => p.tickets).Title("TICKETS").Format("{0:n0}");
+                                columns.Bound(p => p.TOTAL_SAM).Title("TOTAL SAM").Format("{0:n2}");
+
+                            })
+                            .ToolBar(toolbar => { toolbar.Excel(); })
+                            .Excel(excel => excel.FileName(string.Format("Cortes Estilo {0}.xlsx", sStyle))
+                            .Filterable(true)
+                            .AllPages(true)
+                            .ProxyURL(Url.Action("Excel_Export_Save", "Reportes")))
+                            .Editable(editable => editable.Mode(GridEditMode.InLine))
+                            .Reorderable(r => r.Columns(true))
+                            .Resizable(r => r.Columns(true))
+                            .ColumnMenu()
+                            .Sortable()
+                            .Scrollable(s => s.Enabled(true))
+                            .Filterable()
+                            .HtmlAttributes(new { style = "width:auto;height:600px;" })
+                            .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .Model(model => { model.Id(p => p.operno); })
+                            )
+                            .Resizable(resize => resize.Columns(true))
+                            )
+            </div>
+        </text>);
+            })
+            )
+
+
+</div>
+ }
+else
+{
+    <div class="jumbotron">
+        <h1 class="display-4">No ha seleccionado un estilo</h1>
+    </div>
+}
+
+
+
+<style>
+    .TituloColumna {
+        width: 100px;
+    }
+
+    .ContenidoColumna {
+        width: 100px;
+    }
+
+    .DescripcionesColumna {
+        width: 400px;
+    }
+</style>

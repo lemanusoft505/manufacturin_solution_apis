@@ -98,7 +98,7 @@ namespace manufacturin_solution_apis
         {
             try
             {
-                this._strConSQL = String.Format("SERVER={0};DATABASE={1};USER ID={2};PASSWORD={3};APP={4};",
+                this._strConSQL = String.Format("TrustServerCertificate=true;SERVER={0};DATABASE={1};USER ID={2};PASSWORD={3};APP={4};",
                 this.ServidorSQL.Replace("'", string.Empty),
                 this.BaseDatosSQL.Replace("'", string.Empty),
                 this.UsuarioSQL.Replace("'", string.Empty),
