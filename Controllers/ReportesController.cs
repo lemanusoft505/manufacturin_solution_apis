@@ -13,7 +13,13 @@ namespace manufacturin_solution_apis.Controllers
     public class ReportesController : Controller
     {
 
-        public ActionResult Bihorario_estilos(DateTime dtFecha, string sStyle)
+        public IActionResult Modular() { 
+            return View();
+        }
+
+        #region :::::::::::::  BIHORARIOS
+
+        public IActionResult Bihorario_estilos(DateTime dtFecha, string sStyle)
         {
             if (sStyle == null)
                 sStyle = "";
@@ -121,16 +127,13 @@ namespace manufacturin_solution_apis.Controllers
                             DataTable tt = tbls.Tables[2].Select($"style='{globales.comillas(sStyle)}'").CopyToDataTable();
                             TempData["data_generales_bihorario_estilos_prod"] = t.grd(tt);
                         }
-
                     }
                 }
-
             }
-
             return View();
         }
 
-        public ActionResult Bihorario(DateTime dtFecha, string Seleccion = "", string Valor = "")
+        public IActionResult Bihorario(DateTime dtFecha, string Seleccion = "", string Valor = "")
         {
             ViewBag.dtFecha = dtFecha;
             ViewBag.Seleccion_Bihorario = Seleccion;
@@ -164,11 +167,16 @@ namespace manufacturin_solution_apis.Controllers
             return View();
         }
 
+        #endregion
+
+        #region :::::::::::::  HOME
         public IActionResult Home()
         {
             return View();
         }
+        #endregion
 
+        #region :::::::::::::  DASHBOARD
         public IActionResult Dashboard(string txtUsuario, string txtClave, bool EsSesionIniciada)
         {
             bool esOK = false;
@@ -272,14 +280,14 @@ namespace manufacturin_solution_apis.Controllers
                         }
                         catch (Exception ex)
                         {
-                            ViewBag.strError = ex.Message;
+                            TempData["strError"] = ex.Message;
                             esOK = false;
                         }
                 }
             }
             catch (System.Exception ee)
             {
-                ViewBag.strError = ee.Message;
+                TempData["strError"] = ee.Message;
                 esOK = false;
             }
            
@@ -291,12 +299,14 @@ namespace manufacturin_solution_apis.Controllers
                 return RedirectToAction("Error", "Shared");
             }
         }
+        #endregion
 
+        #region :::::::::::::  INDEX
         public IActionResult Index()
         {
             return View();
         }
-
+        #endregion
 
         #region ::::::::::::::::::  DATA
         public IActionResult cupones_operacion(DateTime dtFecha, string operno, string linea)

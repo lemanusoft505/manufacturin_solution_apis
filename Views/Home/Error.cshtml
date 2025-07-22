@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Error";
     string strError = TempData["strError"].ToString();
-    if(strError == null)
+    if (strError == null)
     {
         strError = "No error information available.";
     }
@@ -14,7 +14,7 @@
 {
     <p>
         <strong>Request ID:</strong> <code>@strError</code>
-        
+
     </p>
 }
 

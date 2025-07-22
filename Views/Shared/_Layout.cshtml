@@ -79,10 +79,11 @@
           .Items(items =>
           {
               items.Add().Text("Resumen").Action("Home", "Reportes").ImageUrl("~/Content/media/24x24/home.png");
-              items.Add().Text("Bihorario")
-                .ImageUrl("~/Content/media/24x24/clock.png")
+              items.Add().Text("Descargas").Action("Downloads", "Home").ImageUrl("~/Content/media/24x24/download.png");
+              items.Add().Text("Bihorario").ImageUrl("~/Content/media/24x24/clock.png")
                 .Items(subMenu =>
                 {
+                    subMenu.Add().Text("Modular").Action("Modular", "Reportes");
                     subMenu.Add().Text("General").Action("Bihorario", "Reportes", new { dtFecha = System.DateTime.Now, Seleccion = "", Valor = "" });
                     subMenu.Add().Text("Estilos").Action("Bihorario_estilos", "Reportes", new { dtFecha = System.DateTime.Now });
                 });

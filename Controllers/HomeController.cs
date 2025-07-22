@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,8 +14,21 @@ namespace manufacturin_solution_apis.Controllers
 {
     public class HomeController : Controller
     {
+        public IActionResult Downloads() { return View(); }
 
-        
+        public IActionResult Descargar(string sArchivo) {
+            try
+            {
+                var filePath = GetFilePathFromId(sArchivo);
+                byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+                return File(fileBytes, "application/force-download", sArchivo);
+            }
+            catch (Exception e)
+            {
+                TempData["strError"] = e.Message;
+                return RedirectToAction("Error", "Home");
+            }
+        }
 
         private readonly ILogger<HomeController> _logger;
 
@@ -59,6 +73,18 @@ namespace manufacturin_solution_apis.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        // Método auxiliar para obtener la ruta física del archivo a partir del identificador
+        private string GetFilePathFromId(string sArchivo)
+        {
+            var downloadsFolder = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot", "Content", "Downloads");
+            var filePath = Path.Combine(downloadsFolder, sArchivo);
+
+            if (System.IO.File.Exists(filePath))
+                return filePath;
+
+            return null;
         }
     }
 }

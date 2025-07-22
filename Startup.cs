@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
+using System;
 
 namespace manufacturin_solution_apis
 {
@@ -28,10 +30,10 @@ namespace manufacturin_solution_apis
             services.AddKendo();
             services.Configure<CookiePolicyOptions>(options =>
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => false;
                 options.MinimumSameSitePolicy =Microsoft.AspNetCore.Http.SameSiteMode.Lax;
             });
+            //services.AddDirectoryBrowser();
 
             services.Configure<CookieTempDataProviderOptions>(options =>
             {
@@ -61,6 +63,13 @@ namespace manufacturin_solution_apis
 
             app.UseCookiePolicy(); // <- this
             app.UseSession();
+
+            //var fileProvider = new PhysicalFileProvider(env.WebRootPath);
+            //app.UseDirectoryBrowser(new DirectoryBrowserOptions
+            //{
+            //    FileProvider = fileProvider,
+            //    RequestPath = "/wwwroot/Content/Downloads"
+            //});
 
             app.UseEndpoints(endpoints =>
             {
