@@ -19,6 +19,8 @@ namespace manufacturin_solution_apis
         public string descripcion { get; set; }
         public bool estado { get; set; }
         public string Alias { get; set; }
+        public string refCostCenterPlanilla { get; set; }
+
         private string _strError { get; set; }
         public string strError { get => _strError; }
 
@@ -38,61 +40,14 @@ namespace manufacturin_solution_apis
                         estado = bool.Parse(r["estado"].ToString())
                         ,
                         Alias = r["Alias"].ToString()
-                });
+                        , 
+                        refCostCenterPlanilla = r["refCostCenterPlanilla"].ToString()
+                    });
                 }
             }
                 catch (Exception)
             {
                 rs = null;
-            }
-            return rs;
-        }
-
-
-        public bool Guardar()
-        {
-            bool rs = false;
-            try
-            {
-                _strError = string.Empty;
-                string strsql = $"exec dbo.Planta_Guardar " +
-                    $"@id_planta = {this.id_planta}," +
-                    $"@descripcion = '{globales.comillas(this.descripcion)}'," +
-                    $"@estado = '{this.estado}'," +
-                    $"@Alias = '{globales.comillas(this.Alias)}';";
-                int rn = 0;
-                globales.consql.ejecutar_int(strsql, ref rn);
-                rs = Recuperar(rn);
-            }
-            catch (Exception e)
-            {
-                rs = false;
-                _strError = e.Message;
-            }
-            return rs;
-        }
-        public bool Guardar(int nid_planta,
-            string sdescripcion,
-            bool bestado,
-            string sAlias)
-        {
-            bool rs = false;
-            try
-            {
-                _strError = string.Empty;
-                string strsql = $"exec dbo.Planta_Guardar " +
-                    $"@id_planta = {nid_planta}," +
-                    $"@descripcion = '{globales.comillas(sdescripcion)}'," +
-                    $"@estado = '{bestado}'," +
-                    $"@Alias = '{globales.comillas(sAlias)}';" ;
-                int rn = 0;
-                globales.consql.ejecutar_int(strsql, ref rn);
-                rs = Recuperar(rn);
-            }
-            catch (Exception e)
-            {
-                rs = false;
-                _strError = e.Message;
             }
             return rs;
         }
@@ -132,6 +87,7 @@ namespace manufacturin_solution_apis
                     this.descripcion = row["descripcion"].ToString();
                     this.estado = bool.Parse(row["estado"].ToString());
                     this.Alias = row["Alias"].ToString();
+                    this.refCostCenterPlanilla = row["refCostCenterPlanilla"].ToString();
                     rs = true;
                 }
             }
@@ -147,11 +103,12 @@ namespace manufacturin_solution_apis
         {
             try
             {
-                id_planta = 0; descripcion = ""; estado = false; Alias = "";
+                id_planta = 0; descripcion = ""; estado = false; Alias = ""; this.refCostCenterPlanilla = "";
             }
             catch (Exception)
             {}
         }
+
         public cls_dbo_planta() {
             ir_nuevo();
         }

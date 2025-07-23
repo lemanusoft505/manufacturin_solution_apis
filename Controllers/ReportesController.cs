@@ -12,11 +12,37 @@ namespace manufacturin_solution_apis.Controllers
 {
     public class ReportesController : Controller
     {
-
-        public IActionResult Modular() { 
+        #region :::::::::::::  MODULAR
+        public IActionResult Modular_Proceso(int nLinea)
+        {
+            
             return View();
         }
 
+        public IActionResult Modular_Linea(int nPlanta)
+        {
+            using (cls_dbo_planta t = new cls_dbo_planta())
+            {
+                t.Recuperar(nPlanta);
+                TempData["data_planta"] = t;
+
+            }
+            using (cls_dbo_linea t = new cls_dbo_linea())
+            {
+                TempData["data_lineas"] = t.grd(nPlanta);
+            }
+            return View(); 
+        }
+
+        public IActionResult Modular() {
+            //todo: cargar plantas y líneas y módulos
+            using(cls_dbo_planta t = new cls_dbo_planta())
+            {
+                TempData["data_plantas"] = t.grd();
+            }
+            return View();
+        }
+        #endregion
         #region :::::::::::::  BIHORARIOS
 
         public IActionResult Bihorario_estilos(DateTime dtFecha, string sStyle)

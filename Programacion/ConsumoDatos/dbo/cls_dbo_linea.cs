@@ -23,6 +23,7 @@ namespace manufacturin_solution_apis
         public bool Estado { get; set; }
         public string Alias { get; set; }
         public string Alias2 { get; set; }
+        public string refCostCenterPlanilla { get; set; }
 
         private string _strError { get; set; }
         public string strError { get => _strError; }
@@ -30,6 +31,36 @@ namespace manufacturin_solution_apis
 
         #region Métodos
 
+        public System.Collections.Generic.List<cls_dbo_linea> grd(int nIdPlanta)
+        {
+            System.Collections.Generic.List<cls_dbo_linea> rs = new System.Collections.Generic.List<cls_dbo_linea>();
+            try
+            {
+                DataTable tbl = new DataTable();
+                globales.consql.llenar_datatable($"exec dbo.Linea_grd_x_planta @IdPlanta={nIdPlanta};", ref tbl);
+                foreach (DataRow r in tbl.Rows)
+                {
+                    rs.Add(new cls_dbo_linea()
+                    {
+                        id_linea = int.Parse(r["#"].ToString()),
+                        id_planta = int.Parse(r["id_planta"].ToString()),
+                        planta = r["PLANT"].ToString(),
+                        numero = r["LINE"].ToString(),
+                        idcliente = int.Parse(r["ID CLIENTE"].ToString()),
+                        cliente = r["CLIENTE"].ToString(),
+                        Estado = bool.Parse(r["ESTADO"].ToString()),
+                        Alias = r["ALIAS"].ToString(),
+                        Alias2 = r["ALIAS2"].ToString(),
+                        refCostCenterPlanilla = r["REF_COSTRCTR"].ToString()
+                    });
+                }
+            }
+            catch (Exception)
+            {
+                rs = null;
+            }
+            return rs;
+        }
         private string sincomillas(string sTexto) { return globales.comillas(sTexto); }
 
         public bool Guardar_grd()
@@ -163,6 +194,7 @@ namespace manufacturin_solution_apis
                     this.Estado = bool.Parse(row["Estado"].ToString());
                     this.Alias = row["Alias"].ToString();
                     this.Alias2 = row["Alias2"].ToString();
+                    this.refCostCenterPlanilla = row["REF_COSTRCTR"].ToString();
                     rs = true;
                 }
             }
@@ -187,6 +219,7 @@ namespace manufacturin_solution_apis
             this.Alias2 = "";
             this.planta = "";
             this.cliente = "";
+            this.refCostCenterPlanilla = "";
         }
 
         public cls_dbo_linea()
