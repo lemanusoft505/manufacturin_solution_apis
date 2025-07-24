@@ -1,12 +1,13 @@
 ﻿using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
+using manufacturin_solution_apis.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Net;
-using manufacturin_solution_apis.Models;
 using System.Linq;
+using System.Net;
+using static Kendo.Mvc.UI.UIPrimitives;
 
 namespace manufacturin_solution_apis.Controllers
 {
@@ -15,18 +16,28 @@ namespace manufacturin_solution_apis.Controllers
         #region :::::::::::::  MODULAR
         public IActionResult Modular_Proceso(int nLinea)
         {
-            
+            using (cls_dbo_linea objLinea = new cls_dbo_linea())
+            {
+                objLinea.Recuperar(nLinea);
+                TempData["data_linea"] = objLinea;
+
+                cls_dbo_planta objPlanta = new cls_dbo_planta();
+                objPlanta.Recuperar(objLinea.id_planta);
+                TempData["data_planta"] = objPlanta;
+
+                using (Items_ID_DESC t = new Items_ID_DESC())
+                {
+                    TempData["data_procesos"] = t.grd($"EXEC INTELSERVER.Voids_con_saldo_linea @Linea = '{globales.comillas(objLinea.refCostCenterPlanilla)}';");
+                }
+            }            
             return View();
         }
 
         public IActionResult Modular_Linea(int nPlanta)
         {
-            using (cls_dbo_planta t = new cls_dbo_planta())
-            {
-                t.Recuperar(nPlanta);
-                TempData["data_planta"] = t;
-
-            }
+            cls_dbo_planta objPlanta = new cls_dbo_planta();
+            objPlanta.Recuperar(nPlanta);
+            TempData["data_planta"] = objPlanta;
             using (cls_dbo_linea t = new cls_dbo_linea())
             {
                 TempData["data_lineas"] = t.grd(nPlanta);

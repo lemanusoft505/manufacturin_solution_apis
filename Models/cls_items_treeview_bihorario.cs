@@ -26,6 +26,7 @@ namespace manufacturin_solution_apis.Models
             if (sTipo == "03-LINEA") { ui = "../../Content/media/24x24/female_male_users.png"; }
             return ui;
         }
+
         public List<cls_items_treeview_bihorario> getData()
         {
             List<cls_items_treeview_bihorario> data = new List<cls_items_treeview_bihorario>() { };
@@ -66,8 +67,6 @@ namespace manufacturin_solution_apis.Models
             }
             return data;
         }
-
-
 
         public cls_items_treeview_bihorario()
         {

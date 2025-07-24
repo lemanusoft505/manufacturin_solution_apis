@@ -194,7 +194,7 @@ namespace manufacturin_solution_apis
                     this.Estado = bool.Parse(row["Estado"].ToString());
                     this.Alias = row["Alias"].ToString();
                     this.Alias2 = row["Alias2"].ToString();
-                    this.refCostCenterPlanilla = row["REF_COSTRCTR"].ToString();
+                    this.refCostCenterPlanilla = row["ref_costctr"].ToString();
                     rs = true;
                 }
             }

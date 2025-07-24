@@ -1,1 +1,46 @@
-﻿
+﻿@{
+    Layout = globales.LayPadre;
+    cls_dbo_linea data_linea = TempData["data_linea"] as cls_dbo_linea;
+    cls_dbo_planta data_planta = TempData["data_planta"] as cls_dbo_planta;
+    List<Items_ID_DESC> data_procesos = TempData["data_procesos"] as List<Items_ID_DESC>;
+
+    <style>
+        .centrado {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+    <div class="container h-100">
+        <h3 class="display-4">@data_planta.descripcion -> @data_linea.Alias - @data_linea.refCostCenterPlanilla </h3>
+        
+        <div class="d-flex justify-content-center h-100">
+
+            <div class="user_card">
+                <div class="d-flex justify-content-center form_container">
+                    @using (Html.BeginForm("Modular_Proceso", "Reportes", FormMethod.Post))
+                    {
+                        foreach (Items_ID_DESC item in data_procesos)
+                        {
+                            <div class="jumbotron">
+                                <div class="container">
+                                    <div class="col-sm">
+                                        <button type="button" value="@item.DESCRIPTION" name="sProceso" class="btn login_btn">
+                                            <img class="img-fluid" src="~/Content/media/factory-line2.png" />
+                                            <p class="lead">@string.Format("{0}\tstock: {1}", item.DESCRIPTION,item.ID)</p>
+                                            <hr class="my-4">
+                                        </button>
+                                        <input type="hidden" name="idPlanta" value="@data_planta.id_planta" />
+                                        <input type="hidden" name="idLinea" value="@data_linea.id_linea" />
+
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

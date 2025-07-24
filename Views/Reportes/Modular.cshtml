@@ -1,7 +1,7 @@
 ﻿@{
     Layout = globales.LayPadre;
     List<cls_dbo_planta> data_planta = TempData["data_plantas"] as List<cls_dbo_planta>;
-
+    int filas = 0;
 
 
 <style>
@@ -13,24 +13,25 @@
     }
 </style>
     <div class="container h-100">
-        <h1 class="display-4">Seleccione Planta</h1>
+        <h3 class="display-4">Seleccione Planta</h3>
 
         <div class="d-flex justify-content-center h-100">
-            
+
             <div class="user_card">
                 <div class="d-flex justify-content-center form_container">
                     @using (Html.BeginForm("Modular_Linea", "Reportes", FormMethod.Post))
                     {
-                        foreach (cls_dbo_planta item in data_planta)
+                        @Html.AntiForgeryToken()
+                        foreach (cls_dbo_planta item in data_planta.Where(i => i.refCostCenterPlanilla.Trim().Length > 0).ToList())
                         {
-                            <div class="jumbotron" >
+                            <div class="jumbotron">
                                 <div class="container">
-                                    <div class="col-sm" >
+                                    <div class="col-sm">
                                         <button type="submit" value="@item.id_planta" name="nPlanta" class="btn login_btn">
                                             <img class="img-fluid" src="~/Content/media/64x64/home.png" />
                                             <p class="lead">@item.descripcion</p>
                                             <hr class="my-4">
-                                        </button>                                        
+                                        </button>
                                     </div>
                                 </div>
                             </div>

@@ -13,7 +13,7 @@
         }
     </style>
     <div class="container h-100">
-        <h1 class="display-4">Seleccione Línea de Planta: @data_planta.descripcion</h1>
+        <h3 class="display-4">Seleccione Línea de Planta: @data_planta.descripcion</h3>
 
         <div class="d-flex justify-content-center h-100">
 
@@ -21,6 +21,7 @@
                 <div class="d-flex justify-content-center form_container">
                     @using (Html.BeginForm("Modular_Proceso", "Reportes", FormMethod.Post))
                     {
+                        @Html.AntiForgeryToken()
                         foreach (cls_dbo_linea item in data_linea.Where(i=>i.refCostCenterPlanilla.Trim().Length>0).ToList())
                         {
                             <div class="jumbotron">
@@ -29,7 +30,7 @@
                                         <button type="submit" value="@item.id_linea" name="nLinea" class="btn login_btn">
                                             <img class="img-fluid" src="~/Content/media/factory-line2.png" />
                                             <p class="lead">@item.refCostCenterPlanilla - @item.Alias</p>
-                                            <hr class="my-4">
+                                            <hr class="my-4">                                            
                                         </button>
                                     </div>
                                 </div>
