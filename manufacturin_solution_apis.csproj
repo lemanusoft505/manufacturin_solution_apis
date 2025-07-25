@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+    <PackageReference Include="Telerik.Reporting" Version="17.1.23.718" />
     <PackageReference Include="Telerik.UI.for.AspNet.Core" Version="2023.1.117" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.0" />
   </ItemGroup>
@@ -32,7 +33,7 @@
   <ItemGroup>
     <None Include="wwwroot\Content\AdminLTE.css" />
     <None Include="wwwroot\Content\AdminLTE.min.css" />
-    <None Include="wwwroot\Content\Bihorario_x_Planning.trdp" />
+    <None Include="wwwroot\Content\Reporting\Bihorario_x_Planning.trdp" />
     <None Include="wwwroot\Content\bootstrap-grid.css" />
     <None Include="wwwroot\Content\bootstrap-grid.css.map" />
     <None Include="wwwroot\Content\bootstrap-grid.min.css" />
