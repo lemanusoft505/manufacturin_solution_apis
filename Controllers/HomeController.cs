@@ -76,7 +76,7 @@ namespace manufacturin_solution_apis.Controllers
         }
 
         // Método auxiliar para obtener la ruta física del archivo a partir del identificador
-        private string GetFilePathFromId(string sArchivo)
+        public string GetFilePathFromId(string sArchivo)
         {
             var downloadsFolder = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot", "Content", "Downloads");
             var filePath = Path.Combine(downloadsFolder, sArchivo);

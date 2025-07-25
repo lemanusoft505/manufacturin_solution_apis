@@ -3,11 +3,16 @@ using Kendo.Mvc.UI;
 using manufacturin_solution_apis.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Net;
+using Telerik.Reporting;
+using Telerik.Reporting.Processing;
 using static Kendo.Mvc.UI.UIPrimitives;
+
 
 namespace manufacturin_solution_apis.Controllers
 {
@@ -16,21 +21,80 @@ namespace manufacturin_solution_apis.Controllers
         #region :::::::::::::  MODULAR
         public IActionResult Modular_Proceso(int nLinea)
         {
-            using (cls_dbo_linea objLinea = new cls_dbo_linea())
+            try
             {
+                cls_dbo_linea objLinea = new cls_dbo_linea();
                 objLinea.Recuperar(nLinea);
                 TempData["data_linea"] = objLinea;
-
-                cls_dbo_planta objPlanta = new cls_dbo_planta();
-                objPlanta.Recuperar(objLinea.id_planta);
-                TempData["data_planta"] = objPlanta;
-
-                using (Items_ID_DESC t = new Items_ID_DESC())
+                string sArchivo = $"{Guid.NewGuid()}".Replace(":","").Replace("-","");
+                ReportPackager reportPackager = new ReportPackager();
+                ReportProcessor reportProcessor = new ReportProcessor();
+                Hashtable deviceInfo = new Hashtable();
+                UriReportSource reportSource = new UriReportSource();
+                string logoUrl = Path.Combine("wwwroot", "Content","media");
+                logoUrl = Path.Combine(logoUrl, "logSM.png");
+                reportSource.Uri = Path.Combine("wwwroot", "Content","Reporting");
+                reportSource.Uri = Path.Combine(reportSource.Uri, "Bihorario_x_Planning.trdp");
+                Telerik.Reporting.Report reportInstance = (Telerik.Reporting.Report)reportPackager.UnpackageDocument(System.IO.File.OpenRead(reportSource.Uri));
+                var sqlDS = reportInstance.GetDataSources().OfType<SqlDataSource>();
+                foreach (var sqlDataSource in sqlDS)
                 {
-                    TempData["data_procesos"] = t.grd($"EXEC INTELSERVER.Voids_con_saldo_linea @Linea = '{globales.comillas(objLinea.refCostCenterPlanilla)}';");
+                    sqlDataSource.ConnectionString = globales.consql.StrConSQL;
+                    sqlDataSource.SelectCommand = $"EXEC INTELSERVER.voids_cupones_tlrk_01 @line = '{globales.comillas(objLinea.refCostCenterPlanilla)}';";
                 }
-            }            
-            return View();
+                var reporte = new InstanceReportSource() { ReportDocument = reportInstance };
+                reporte.Parameters.Add(new Telerik.Reporting.Parameter("MiEmpresa", $"{globales.objEmpresa.Empresa}"));
+                reporte.Parameters.Add(new Telerik.Reporting.Parameter("MiEslogan", $"{globales.objEmpresa.Eslogan}"));
+                reporte.Parameters.Add(new Telerik.Reporting.Parameter("MisGenerales", $"{globales.objEmpresa.Dirección_Local}\n{globales.objEmpresa.Teléfonos}\n{globales.objEmpresa.Email}"));
+                reporte.Parameters.Add(new Telerik.Reporting.Parameter("LogoEmpresa", $"{logoUrl}"));
+                RenderingResult result = reportProcessor.RenderReport("PDF", reporte, deviceInfo);
+                if (result.DocumentBytes != null)
+                {
+
+                    //var downloadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Content", "Downloads");
+                    //var filePath = Path.Combine(downloadsFolder, sArchivo);
+                    //if (System.IO.File.Exists(filePath))
+                    //{
+                    //    System.IO.File.Delete(filePath);
+                    //}
+                    //System.IO.File.WriteAllBytes(filePath, result.DocumentBytes);
+                    //byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+                    //return File(fileBytes, "application/force-download", sArchivo);
+
+                    //FileContentResult fileContent = new FileContentResult(result.DocumentBytes, "application/pdf");
+                    //return fileContent;
+
+                    //return File(fileContent.FileContents, "application/force-download", "Reporte.pdf");
+                    return File(result.DocumentBytes, "application/octet-stream", "Reporte.pdf");
+
+                }
+                else
+                {
+                    TempData["strError"] = "No hay datos disponibles";
+                    return RedirectToAction("Error", "Home");
+                }
+            }
+            catch (Exception e)
+            {
+                TempData["strError"] = e.Message;
+                return RedirectToAction("Error", "Home");
+            }
+
+            //using (cls_dbo_linea objLinea = new cls_dbo_linea())
+            //{
+            //    objLinea.Recuperar(nLinea);
+            //    TempData["data_linea"] = objLinea;
+
+            //    cls_dbo_planta objPlanta = new cls_dbo_planta();
+            //    objPlanta.Recuperar(objLinea.id_planta);
+            //    TempData["data_planta"] = objPlanta;
+
+            //    using (Items_ID_DESC t = new Items_ID_DESC())
+            //    {
+            //        TempData["data_procesos"] = t.grd($"EXEC INTELSERVER.Voids_con_saldo_linea @Linea = '{globales.comillas(objLinea.refCostCenterPlanilla)}';");
+            //    }
+            //}            
+            //return View();
         }
 
         public IActionResult Modular_Linea(int nPlanta)
